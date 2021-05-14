@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_horizontal|top"
+            android:orientation="vertical"
+            android:padding="15dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="25dp"
+                android:text="Cowin Automator"
+                android:textColor="#DA00FF"
+                android:textIsSelectable="false"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <EditText
+                android:id="@+id/editTextPhone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="15dp"
+                android:ems="10"
+                android:hint="Enter your mobile number"
+                android:inputType="phone" />
+
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:background="@android:color/darker_gray"
+                android:text="Add filters"
+                android:textAlignment="center"
+                android:textColor="#000000"
+                android:textSize="18sp" />
+
+            <RadioGroup
+                android:id="@+id/paid_type"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/radioButton7"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Paid" />
+
+                <RadioButton
+                    android:id="@+id/radioButton8"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Free" />
+
+                <RadioButton
+                    android:id="@+id/radioButton9"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="All" />
+            </RadioGroup>
+
+            <RadioGroup
+                android:id="@+id/age_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/radioButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Age 18+" />
+
+                <RadioButton
+                    android:id="@+id/radioButton2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Age 45+" />
+
+                <RadioButton
+                    android:id="@+id/radioButton3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="All" />
+
+            </RadioGroup>
+
+            <RadioGroup
+                android:id="@+id/vaccine_type"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/radioButton4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Covishield" />
+
+                <RadioButton
+                    android:id="@+id/radioButton5"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Covaxin" />
+
+                <RadioButton
+                    android:id="@+id/radioButton6"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="All" />
+            </RadioGroup>
+
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:background="@android:color/darker_gray"
+                android:text="Add Location"
+                android:textAlignment="center"
+                android:textColor="#000000"
+                android:textSize="18sp" />
+
+            <RadioGroup
+                android:id="@+id/search_by_type"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/radioButton10"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="By PIN"
+                    android:onClick="provideCompatibleSearch"/>
+
+                <RadioButton
+                    android:id="@+id/radioButton11"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="By District"
+                    android:onClick="provideCompatibleSearch"/>
+            </RadioGroup>
+
+            <LinearLayout
+                android:id="@+id/user_address_input_field"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <EditText
+                    android:id="@+id/pin_number"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:hint="Enter PIN number"
+                    android:inputType="numberSigned" />
+            </LinearLayout>
+            <TextView
+                android:id="@+id/textView3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="15dp"
+                android:background="@android:color/darker_gray"
+                android:text="Add checking frequency"
+                android:textAlignment="center"
+                android:textColor="#000000"
+                android:textSize="18sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="25dp">
+
+                <Button
+                    android:id="@+id/button6"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="-"
+                    android:textSize="24sp"
+                    android:onClick="decreaseInterval"/>
+
+                <TextView
+                    android:id="@+id/scanning_interval"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="60"
+                    android:textColor="#DA00FF"
+                    android:textSize="18sp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="seconds" />
+
+                <Button
+                    android:id="@+id/button5"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="+"
+                    android:textSize="24sp"
+                    android:onClick="increaseInterval"/>
+            </LinearLayout>
+            <TextView
+                android:id="@+id/textView4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:background="@android:color/darker_gray"
+                android:text="Secret"
+                android:textAlignment="center"
+                android:textColor="#000000"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/textView5"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Don't change it in case you don't know!" />
+
+            <EditText
+                android:id="@+id/secret"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="textPersonName"
+                android:layout_marginBottom="30dp"
+                android:text="U2FsdGVkX18rhfAJzFNFoaBDJe9Lrw6Sr4ELWnNCxmlOVEjZcJO7AAI2mYAe0LkOh8OUvf4YspO2kg1coKlD4g==" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/button3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="startMonitoring"
+                    android:text="Start Monitoring" />
+
+                <Button
+                    android:id="@+id/button4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Stop Monitoring"
+                    android:onClick="stopMonitoring"/>
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+
+</LinearLayout>

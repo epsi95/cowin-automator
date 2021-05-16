@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".CaptchaSubmitActivity"
+    android:orientation="vertical">
+
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <Button
+                android:id="@+id/waiting_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Listening to availability..."
+                android:onClick="toggleWaitingStatus"/>
+
+            <TextView
+                android:id="@+id/textView6"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="You can stay here to give captcha immediately, otherwise you can safely close the app. You will be notified via sound and vibration. Make sure enabled then from settings if not enabled." />
+
+            <LinearLayout
+                android:id="@+id/available_centers"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"/>
+
+            <ImageView
+                android:layout_marginTop="15dp"
+                android:id="@+id/captcha_image_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:adjustViewBounds="true"
+                android:background="@android:color/holo_orange_light"
+                android:gravity="end|center_vertical"
+                android:scaleType="fitXY"
+                app:srcCompat="@drawable/small" />
+
+            <EditText
+                android:id="@+id/captcha_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="15dp"
+                android:ems="10"
+                android:hint="Enter CAPTCHA"
+                android:inputType="textPersonName"
+                android:focusedByDefault="true"/>
+
+            <Button
+                android:id="@+id/button7"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="tryToBook"
+                android:text="Book" />
+
+            <TextView
+                android:id="@+id/textView8"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_marginTop="25dp"
+                android:text="about the developer"
+                android:onClick="showDeveloperPage"/>
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

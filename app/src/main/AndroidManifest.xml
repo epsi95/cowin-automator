@@ -3,6 +3,7 @@
     package="io.github.epsi95">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.READ_SMS" />
@@ -15,7 +16,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".AvailableCenters"></activity>
+        <activity android:name=".CaptchaSubmitActivity" android:noHistory="true"></activity>
+        <activity android:name=".BeneficiaryActivity" />
+        <activity android:name=".OtpActivity" />
+        <activity android:name=".AvailableCenters" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -9,12 +9,14 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 
 public class App extends Application {
-	static RequestQueue queue;
+	public static RequestQueue httpRequestQueue;
 	public static final String CHANNEL_ID = "cowin_automate_app_channel";
+	public static UserPreference userPreference;
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		queue = Volley.newRequestQueue(this);
+		userPreference = new UserPreference();
+		httpRequestQueue = Volley.newRequestQueue(this);
 		createNotificationChannel();
 	}
 	private void createNotificationChannel() {

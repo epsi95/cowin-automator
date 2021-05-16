@@ -7,7 +7,9 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,21 +34,28 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 public class MainActivity extends AppCompatActivity {
-	private EditText phoneNumberEditText;
-	private RadioGroup ageGroup;
-	private RadioGroup vaccineType;
-	private RadioGroup paidType;
-	private RadioGroup searchByType;
-	private LinearLayout userAddressInputField;
-	private EditText pinNumber;
-	private TextView scanningInterval;
-	private EditText secretEditText;
+
 	private static final String TAG = "MainActivity";
+
+	private EditText phoneNumberEditText;
+	private RadioGroup ageGroupRadioGroup;
+	private RadioGroup vaccineTypeRadioGroup;
+	private RadioGroup paidTypeRadioGroup;
+	private RadioGroup searchByTypeRadioGroup;
+	private LinearLayout userAddressInputFieldLinearLayout;
+	private TextView scanningIntervalTextView;
+	private EditText secretEditText;
+
 	private int selectedDistrictCode;
 	private String searchByTypeString = "By PIN";
-	private int userScanningInterval = 60;
+	private int userScanningInterval = 1;
+
+	private Handler handler = new Handler();
+
 	private final int PERMISSION_REQUEST_READ_SMS = 100;
 
 	@Override
@@ -54,51 +63,66 @@ public class MainActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-//		checkSMSPermission();
+		checkSMSPermission();
 
 		phoneNumberEditText = findViewById(R.id.editTextPhone);
-		ageGroup = findViewById(R.id.age_group);
-		vaccineType = findViewById(R.id.vaccine_type);
-		paidType = findViewById(R.id.paid_type);
-		searchByType = findViewById(R.id.search_by_type);
-		userAddressInputField = findViewById(R.id.user_address_input_field);
-		scanningInterval = findViewById(R.id.scanning_interval);
+		ageGroupRadioGroup = findViewById(R.id.age_group);
+		vaccineTypeRadioGroup = findViewById(R.id.vaccine_type);
+		paidTypeRadioGroup = findViewById(R.id.paid_type);
+		searchByTypeRadioGroup = findViewById(R.id.search_by_type);
+		userAddressInputFieldLinearLayout = findViewById(R.id.user_address_input_field);
+		scanningIntervalTextView = findViewById(R.id.scanning_interval);
 		secretEditText = findViewById(R.id.secret);
 
+		HttpV2.versionCheckStatus(handler, new RedirectToNewAppRunnable());
 	}
 
-	public void startMonitoring(View view) {
-		pinNumber = findViewById(R.id.pin_number);
+	class RedirectToNewAppRunnable implements Runnable{
+		private String redirectionUrl;
+
+		@Override
+		public void run() {
+			Toast.makeText(MainActivity.this, "New Version available, please download!", Toast.LENGTH_LONG).show();
+			Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(redirectionUrl));
+			startActivity(browserIntent);
+			finish();
+		}
+
+		public void setRedirectionUrl(String redirectionUrl) {
+			this.redirectionUrl = redirectionUrl;
+		}
+	}
+
+
+
+	public void generateOtp(View view) throws InterruptedException, ExecutionException, TimeoutException, JSONException {
+		EditText pinNumber = findViewById(R.id.pin_number);
 
 		final String userPhoneNumber = phoneNumberEditText.getText().toString();
-		final String userSelectedAge = ((RadioButton)findViewById(ageGroup.getCheckedRadioButtonId())).getText().toString();
-		final String userSelectedVaccineType = ((RadioButton)findViewById(vaccineType.getCheckedRadioButtonId())).getText().toString();
-		final String userSelectedPaidType = ((RadioButton)findViewById(paidType.getCheckedRadioButtonId())).getText().toString();
-		final String userSelectedSearchByType = ((RadioButton)findViewById(searchByType.getCheckedRadioButtonId())).getText().toString();
+		final String userSelectedAge = ((RadioButton)findViewById(ageGroupRadioGroup.getCheckedRadioButtonId())).getText().toString();
+		final String userSelectedVaccineType = ((RadioButton)findViewById(vaccineTypeRadioGroup.getCheckedRadioButtonId())).getText().toString();
+		final String userSelectedPaidType = ((RadioButton)findViewById(paidTypeRadioGroup.getCheckedRadioButtonId())).getText().toString();
+		final String userSelectedSearchByType = ((RadioButton)findViewById(searchByTypeRadioGroup.getCheckedRadioButtonId())).getText().toString();
 		final String userPinNumber = searchByTypeString == "By PIN" ? pinNumber.getText().toString() : "";
 		final int userDistrictCode = searchByTypeString == "By District" ? selectedDistrictCode : -1;
 
-		Log.d(TAG, "startMonitoring: " + userPhoneNumber + " " + userSelectedAge + " " +
-				userSelectedVaccineType + " " + userSelectedPaidType + " " +
-				userSelectedSearchByType + " " + userPinNumber + " " + userDistrictCode +
-				" " + userScanningInterval);
+		// setting user preference
+		App.userPreference.setUserPhoneNumber(userPhoneNumber);
+		App.userPreference.setUserAge("Age 18+".equals(userSelectedAge) ? Age.AGE_18_PLUS : "Age 45+".equals(userSelectedAge) ? Age.AGE_45_PLUS : Age.ALL );
+		App.userPreference.setUserSelectedVaccineType(StringToEnumMapper.mapStringToVaccinType(userSelectedVaccineType));
+		App.userPreference.setUserSelectedPaidType("Paid".equals(userSelectedPaidType) ? PaidType.PAID : "Free".equals(userSelectedPaidType) ? PaidType.FREE : PaidType.ALL );
+		App.userPreference.setUserSelectedSearchByType("By PIN".equals(searchByTypeString) ? SearchByType.BY_PIN : SearchByType.BY_DISTRICT);
+		App.userPreference.setUserPinNumber(userPinNumber);
+		App.userPreference.setUserDistrictCode(userDistrictCode);
+		App.userPreference.setUserSecret(secretEditText.getText().toString());
+		App.userPreference.setUserScanningInterval(userScanningInterval);
+
+		Log.d(TAG, "startMonitoring: " + App.userPreference.toString());
 
 		if(isAllFieldsValid(userPhoneNumber, userPinNumber, userDistrictCode)){
-			Log.d(TAG, "startMonitoring: Start Background Service");
+			HttpAsyncRunnable httpAsyncRunnable = new HttpAsyncRunnable(this);
+			new Thread(httpAsyncRunnable).start();
 
-			Intent serviceIntent = new Intent(this, ForegroundService.class);
-			serviceIntent.putExtra("otp", "");
-			serviceIntent.putExtra("userPhoneNumber", userPhoneNumber);
-			serviceIntent.putExtra("userSelectedAge", userSelectedAge);
-			serviceIntent.putExtra("userSelectedVaccineType", userSelectedVaccineType);
-			serviceIntent.putExtra("userSelectedPaidType", userSelectedPaidType);
-			serviceIntent.putExtra("userSelectedSearchByType", userSelectedSearchByType);
-			serviceIntent.putExtra("userPinNumber", userPinNumber);
-			serviceIntent.putExtra("userDistrictCode", userDistrictCode);
-			serviceIntent.putExtra("userScanningInterval", userScanningInterval);
-			serviceIntent.putExtra("userSecret", secretEditText.getText().toString());
-			startService(serviceIntent);
-			Toast.makeText(this, "Monitoring has been started in the background. Check notification tray. You can close the app.", Toast.LENGTH_LONG).show();
 		}else{
 			Toast.makeText(this, "Some of the fields missing or not valid!", Toast.LENGTH_LONG).show();
 		}
@@ -119,22 +143,22 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	public void provideCompatibleSearch(View view) {
-		final String userSelectedSearchByType = ((RadioButton)findViewById(searchByType.getCheckedRadioButtonId())).getText().toString();
-		for(int i=0; i<userAddressInputField.getChildCount(); i++){
-			userAddressInputField.removeViewAt(i);
+		final String userSelectedSearchByType = ((RadioButton)findViewById(searchByTypeRadioGroup.getCheckedRadioButtonId())).getText().toString();
+		for(int i = 0; i< userAddressInputFieldLinearLayout.getChildCount(); i++){
+			userAddressInputFieldLinearLayout.removeViewAt(i);
 		}
 
 		if("By PIN".equals(userSelectedSearchByType)){
 			searchByTypeString = "By PIN";
 			LayoutInflater inflater=(LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			final View pinView=inflater.inflate(R.layout.user_address_input_field, null);
-			userAddressInputField.addView(pinView, 0);
+			userAddressInputFieldLinearLayout.addView(pinView, 0);
 		}else{
 			// that means search by district
 			searchByTypeString = "By District";
 			LayoutInflater inflater=(LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			final View statesDistrictView=inflater.inflate(R.layout.states_and_district, null);
-			userAddressInputField.addView(statesDistrictView, 0);
+			userAddressInputFieldLinearLayout.addView(statesDistrictView, 0);
 			provideStates(this);
 		}
 	}
@@ -188,7 +212,7 @@ public class MainActivity extends AppCompatActivity {
 				}
 		);
 
-		App.queue.add(getRequest);
+		App.httpRequestQueue.add(getRequest);
 
 	}
 	public void provideDistrict(final Context mainActivityContext, int stateCode) {
@@ -241,49 +265,97 @@ public class MainActivity extends AppCompatActivity {
 				}
 		);
 
-		App.queue.add(getRequest);
+		App.httpRequestQueue.add(getRequest);
 
 	}
 
 	public void decreaseInterval(View view) {
-		int scanningIntervalInSeconds = Integer.parseInt(scanningInterval.getText().toString());
-		if(scanningIntervalInSeconds-10 >= 10){
-			scanningIntervalInSeconds-=10;
+		int scanningIntervalInSeconds = Integer.parseInt(scanningIntervalTextView.getText().toString());
+		if(scanningIntervalInSeconds-1 > 0){
+			scanningIntervalInSeconds-=1;
 		}
-		scanningInterval.setText("" + scanningIntervalInSeconds);
+		scanningIntervalTextView.setText("" + scanningIntervalInSeconds);
 		userScanningInterval = scanningIntervalInSeconds;
 	}
 
 	public void increaseInterval(View view) {
-		int scanningIntervalInSeconds = Integer.parseInt(scanningInterval.getText().toString());
-		scanningIntervalInSeconds+=10;
-		scanningInterval.setText("" + scanningIntervalInSeconds);
+		int scanningIntervalInSeconds = Integer.parseInt(scanningIntervalTextView.getText().toString());
+		scanningIntervalInSeconds+=1;
+		scanningIntervalTextView.setText("" + scanningIntervalInSeconds);
 		userScanningInterval = scanningIntervalInSeconds;
 	}
 
-	public void stopMonitoring(View view) {
+	public void startMonitoring(View view) {
 		Intent serviceIntent = new Intent(this, ForegroundService.class);
 		stopService(serviceIntent);
-		Toast.makeText(this, "Monitoring turned off!", Toast.LENGTH_LONG).show();
 	}
-//	private void checkSMSPermission() {
-//		int smsReadPermission = ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_SMS);
-//		int smsReceivePermission = ActivityCompat.checkSelfPermission(this, Manifest.permission.RECEIVE_SMS);
-//		int internetPermission = ActivityCompat.checkSelfPermission(this, Manifest.permission.INTERNET);
-//		int foregroundServicePermission = ActivityCompat.checkSelfPermission(this, Manifest.permission.FOREGROUND_SERVICE);
-//
-//		if(smsReadPermission == PackageManager.PERMISSION_DENIED){
-//			ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.READ_SMS}, 100 );
-//		}
-//		if(smsReceivePermission == PackageManager.PERMISSION_DENIED){
-//			ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.RECEIVE_SMS}, 101 );
-//		}
-//		if(internetPermission == PackageManager.PERMISSION_DENIED){
-//			ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.INTERNET}, 102 );
-//		}
-//		if(foregroundServicePermission == PackageManager.PERMISSION_DENIED){
-//			ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.FOREGROUND_SERVICE}, 103 );
-//		}
-//
-//	}
+
+	class HttpAsyncRunnable implements Runnable{
+		final Context mainActivityContext;
+
+		HttpAsyncRunnable(Context mainActivityContext) {
+			this.mainActivityContext = mainActivityContext;
+		}
+
+		@Override
+		public void run() {
+			Http http = new Http(App.userPreference.getUserPhoneNumber());
+			String txnId = null;
+			try {
+				txnId = http.sendOtp(App.userPreference.getUserSecret());
+			} catch (JSONException e) {
+				e.printStackTrace();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			} catch (ExecutionException e) {
+				e.printStackTrace();
+			} catch (TimeoutException e) {
+				e.printStackTrace();
+			}
+			Intent otpActivity = new Intent(mainActivityContext, OtpActivity.class);
+			otpActivity.putExtra("txnId", txnId);
+			startActivity(otpActivity);
+		}
+	}
+
+	private void checkSMSPermission() {
+		int smsReadPermission = ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_SMS);
+		int smsReceivePermission = ActivityCompat.checkSelfPermission(this, Manifest.permission.RECEIVE_SMS);
+		int internetPermission = ActivityCompat.checkSelfPermission(this, Manifest.permission.INTERNET);
+		int foregroundServicePermission = ActivityCompat.checkSelfPermission(this, Manifest.permission.FOREGROUND_SERVICE);
+
+		if(smsReadPermission == PackageManager.PERMISSION_DENIED){
+			ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.READ_SMS}, PERMISSION_REQUEST_READ_SMS );
+		}
+		if(smsReceivePermission == PackageManager.PERMISSION_DENIED){
+			ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.RECEIVE_SMS}, 101 );
+		}
+		if(internetPermission == PackageManager.PERMISSION_DENIED){
+			ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.INTERNET}, 102 );
+		}
+		if(foregroundServicePermission == PackageManager.PERMISSION_DENIED){
+			ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.FOREGROUND_SERVICE}, 103 );
+		}
+
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode,String permissions[], int[] grantResults) {
+		if (requestCode == PERMISSION_REQUEST_READ_SMS) {
+			if (grantResults.length > 0
+					&& grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+				Toast.makeText(this, "Request granted successfully.",
+						Toast.LENGTH_LONG).show();
+				Intent intent = getIntent();
+				finish();
+				startActivity(intent);
+			} else {
+				Toast.makeText(this,
+						"SMS Read Request failed! App won't work.", Toast.LENGTH_LONG).show();
+				Intent intent = getIntent();
+				finish();
+			}
+		}
+
+	}
 }

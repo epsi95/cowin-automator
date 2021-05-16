@@ -118,13 +118,18 @@
                     android:id="@+id/radioButton4"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Covishield" />
+                    android:text="COVISHIELD" />
 
                 <RadioButton
                     android:id="@+id/radioButton5"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Covaxin" />
+                    android:text="COVAXIN" />
+                <RadioButton
+                    android:id="@+id/radioButton17"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="SPUTNIK V" />
 
                 <RadioButton
                     android:id="@+id/radioButton6"
@@ -214,7 +219,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="60"
+                    android:text="1"
                     android:textColor="#DA00FF"
                     android:textSize="18sp" />
                 <TextView
@@ -268,15 +273,16 @@
                     android:id="@+id/button3"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:onClick="startMonitoring"
-                    android:text="Start Monitoring" />
+                    android:onClick="generateOtp"
+                    android:text="Generate OTP" />
 
                 <Button
-                    android:id="@+id/button4"
+                    android:id="@+id/button2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:text="Stop Monitoring"
-                    android:onClick="stopMonitoring"/>
+                    android:onClick="startMonitoring"/>
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
